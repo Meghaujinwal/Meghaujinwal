@@ -1,0 +1,220 @@
+#upload library xlsx for using excel file dataset
+
+library(xlsx)
+data1<- read.csv("C:/Users/Megha/Documents/Dendo.xlsx.csv")
+View(data1)
+#remove charater column form dataset
+data2<- data1[, -c(1,1)]
+View(data2)
+
+#calculate mean
+mean_data<-apply(data2,2,mean)
+mean_data
+
+#calculate standard deviation
+std<-apply(data2,2,sd)
+std
+
+data2<-scale(data2,mean_data,std)
+data2
+
+#calculate distance matrix
+distance<-dist(data2)
+distance
+View(distance)
+print(distance,digits=3)
+
+#create cluster
+#cluster is a group of object that belongs to the same class or say similar objects are grouped into one cluster. 
+#we do partition of the set of data into groupsbased on data similarity and then assign the lables to the groups. 
+hc<-hclust(distance)
+plot(hc, cex=0.5)
+
+hc<-hclust(distance,"ave")
+plot(hc, cex=0.5)
+
+hc<-hclust(distance)
+plot(hc,labels = data1$Genotypes, cex=0.5)
+
+library(dendroextras)
+clst1<-color_clusters(hclust(distance),5)
+plot(clst1)
+
+
+
+--------------------------------------------------------------------
+
+#another option to create dendogram
+data1<- read.csv("C:/Users/Megha/Documents/Dendo.xlsx.csv")
+data1
+View(data1)
+
+
+distance_mat <- dist(data1, method = 'euclidean')
+distance_mat
+
+library(dplyr)
+clust<-hclust(distance_mat, method ='average')
+plot(clust, labels = data1$Genotypes, hang = 0.1, 
+     main = "Quantitative dendrogram", sub = NULL,
+     xlab = NULL, ylab = "Height", cex=0.5)
+#1 plot.hclust(): R base function
+dd<- data1[, -c(1,1)]
+dd2 <- dist(scale(dd), method = "euclidean")
+dd2
+hc <- hclust(dd2, method = "ward.D2")
+hc
+plot(hc, labels = data1$Genotypes, hang = 0.1, 
+     main = "Quantitative dendrogram", sub = NULL,
+     xlab = NULL, ylab = "Height", cex=0.5)
+plot(hc,labels = data1$Genotypes, hang = -1, cex = 0.5)
+
+
+fit <- cutree(hc, k = 3 )
+fit
+
+
+table(fit)
+rect.hclust(hc, k = 3, border = "green")
+
+--------------------------------------------------------------------------------
+  
+
+library(tidyverse)
+head(data1)
+
+head(data1)
+data1 %>% 
+  #select(SPP, PH.cm., NBR) %>% 
+  dist() %>% 
+  hclust() %>% 
+  as.dendrogram() -> dend
+
+par(mar=c(7,3,1,1))  # Increase bottom margin to have the complete label
+plot(dend, cex=0.5)
+
+
+library(dendextend)
+dend %>%
+  set("branches_col", "grey") %>% set("branches_lwd", 3) %>%  
+  set("labels_col", "orange") %>% set("labels_cex", 0.5) %>%
+   plot()
+dend %>% 
+  set("nodes_pch", 19)  %>% 
+  set("nodes_cex", 0.5) %>% 
+  set("nodes_col", "orange") %>% 
+  plot()
+dend %>% 
+  set("leaves_pch", 19)  %>% 
+  set("leaves_cex", 0.7) %>% 
+  set("leaves_col", "skyblue") %>% 
+  plot()
+
+par(mar=c(1,1,1,7))
+dend %>%
+  set("labels_col", value = c("skyblue", "orange", "grey"), k=3) %>%
+  set("branches_k_color", value = c("skyblue", "orange", "grey"), k = 3) %>%
+  plot(horiz=TRUE, axes=FALSE)
+
+
+par(mar=c(9,1,1,1))
+dend %>%
+  set("labels_col", value = c("skyblue", "orange", "grey"), k=3) %>%
+  set("branches_k_color", value = c("skyblue", "orange", "grey"), k = 3) %>%
+  plot(axes=FALSE, cex=0.5)
+#rect.dendrogram(dend, k=3, lty = 5, lwd = 0, x=1, col=rgb(0.1, 0.2, 0.4, 0.1))
+
+--------------------------------------------------------------------------------
+library(ggplot2)
+library(ggdendro)
+view(data1)
+
+hc <- hclust(dist(data1), "ave")
+ggdendrogram(hc, rotate = FALSE, size = 1)
+dendro <- as.dendrogram(hc)
+
+plot(hc, labels = data1$Genotypes, hang = 0.1, 
+     main = "Quantitative dendrogram", sub = NULL,
+     xlab = NULL, ylab = "Height", cex=0.5)
+plot(hc,labels = data1$Genotypes, hang = -1, cex = 0.5)
+
+
+fit <- cutree(hc, k = 3 )
+fit
+
+
+table(fit)
+rect.hclust(hc, k = 3, border = "green")
+
+
+--------------------------------------------------------------------------------
+  
+new1<-read.csv("C:/Users/Megha/Documents/Dendo.xlsx.csv")
+head(new1)
+class(new1)
+data1<- new1[, -c(1,1)]
+df<-scale(data1)
+df
+res.dist <- dist(df, method = "euclidean")  
+as.matrix(res.dist)[1:6, 1:6]  
+res.hc <- hclust(d = res.dist, method = "ward.D2")
+library("factoextra")  
+fviz_dend(res.hc, cex = 0.4)
+res.coph <- cophenetic(res.hc)
+cor(res.dist, res.coph)  
+cor(res.dist, cophenetic(res.hc2))  
+grp <- cutree(res.hc, k = 4)
+head(grp, n = 4)
+table(grp)
+
+rownames(df)[grp == 1]
+
+fviz_dend(res.hc, cex = 0.4)
+
+library(cluster)
+
+res.agnes <- agnes(x = new1, # data matrix
+                   stand = TRUE, # Standardize the data
+                   metric = "euclidean", # metric for distance matrix
+                   method = "ward" # Linkage method
+)
+
+res.diana <- diana(x = new1, # data matrix
+                   stand = TRUE, # standardize the data
+                   metric = "euclidean" # metric for distance matrix
+)
+
+fviz_dend(res.agnes, cex = 0.4, k = 4)
+fviz_dend(res.diana, cex = 0.6, k = 4)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#cluster is a group of object that belongs to the same class or say similar objects are grouped into one cluster. 
+#we do partition of the set of data into groupsbased on data similarity and then assign the lables to the groups. 
