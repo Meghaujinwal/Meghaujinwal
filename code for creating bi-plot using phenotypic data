@@ -1,0 +1,51 @@
+#code to graph bi-plot of phenotypic data 
+
+data1<- read.csv("C:/Users/Megha/Documents/Dendo.csv")
+data1
+View(data1)
+
+#calculate distance matrix
+distance_mat <- dist(data1, method = 'euclidean')
+distance_mat
+
+
+library(dplyr)
+clust<-hclust(distance_mat, method ='average')
+plot(clust, labels = data1$Genotypes, hang = 0.1, 
+     main = "Quantitative dendrogram", sub = NULL,
+     xlab = NULL, ylab = "Height", cex=0.5)
+#1 plot.hclust(): R base function
+dd<- data1[, -c(1,1)]
+dd2 <- dist(scale(dd), method = "euclidean")
+dd2
+hc <- hclust(dd2, method = "ward.D2")
+hc
+plot(hc, labels = data1$Genotypes, hang = 0.1, 
+     main = "Quantitative dendrogram", sub = NULL,
+     xlab = NULL, ylab = "Height", cex=0.5)
+plot(hc,labels = data1$Genotypes, hang = -1, cex = 0.5)
+
+
+fit <- cutree(hc, k = 3 )
+fit
+
+
+table(fit)
+rect.hclust(hc, k = 3, border = "green")
+
+--------------------------------------------------------------------------------
+#another option to graph a plot instead of using 'dplyr' pakage
+library(tidyverse)
+head(data1)
+
+head(data1)
+data1 %>% 
+  #select(SPP, PH.cm., NBR) %>% 
+  dist() %>% 
+  hclust() %>% 
+  as.dendrogram() -> dend
+
+par(mar=c(7,3,1,1))  # Increase bottom margin to have the complete label
+plot(dend, cex=0.5)
+
+
